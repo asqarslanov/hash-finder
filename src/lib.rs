@@ -6,6 +6,6 @@ pub fn find(n: usize, f: usize) {
         .filter(|(_, hash)| hash.ends_with(zeros))
         .take(f)
         .for_each(|(num, hash)| {
-            println!("{num}, {hash:?}");
+            println!(r#"{num}, "{hash}""#);
         })
 }
