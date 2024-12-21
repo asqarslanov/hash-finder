@@ -1,3 +1,3 @@
 fn main() {
-    println!("Hello, world!");
+    hash_finder::find(3, 6);
 }
