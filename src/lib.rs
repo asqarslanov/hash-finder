@@ -10,5 +10,5 @@ pub fn find(n: usize, f: usize) {
         .take_any(f)
         .for_each(|(num, hash)| {
             println!(r#"{num}, "{hash}""#);
-        })
+        });
 }
