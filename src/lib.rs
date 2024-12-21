@@ -5,5 +5,7 @@ pub fn find(n: usize, f: usize) {
         .map(|num| (num, sha256::digest(num.to_string())))
         .filter(|(_, hash)| hash.ends_with(zeros))
         .take(f)
-        .for_each(|(num, hash)| println!("{num}, {hash:?}"))
+        .for_each(|(num, hash)| {
+            println!("{num}, {hash:?}");
+        })
 }
