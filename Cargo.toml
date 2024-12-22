@@ -8,5 +8,6 @@ name = "hash_finder"
 path = "src/main.rs"
 
 [dependencies]
+clap = { version = "4.5.23", features = ["derive"] }
 rayon = "1.10.0"
 sha256 = { version = "1.5.0", default-features = false }

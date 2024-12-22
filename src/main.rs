@@ -1,3 +1,10 @@
+use clap::Parser;
+
+use cli::Cli;
+
+mod cli;
+
 fn main() {
-    hash_finder::find(3, 6);
+    let args = Cli::parse();
+    hash_finder::find(args.zeros, args.results);
 }
