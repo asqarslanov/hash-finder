@@ -1,14 +1,26 @@
 use rayon::prelude::*;
 
-pub fn find(n: usize, f: usize) {
-    let zeros = &"0".repeat(n);
+struct Pair {
+    number: u32,
+    hash: String,
+}
+
+fn find_all_with_n_zeros(n: usize) -> impl ParallelIterator<Item = Pair> {
+    let zeros = "0".repeat(n);
 
     (1_u32..)
         .par_bridge()
-        .map(|num| (num, sha256::digest(num.to_string())))
-        .filter(|(_, hash)| hash.ends_with(zeros))
+        .map(|number| Pair {
+            number,
+            hash: sha256::digest(number.to_string()),
+        })
+        .filter(move |it| it.hash.ends_with(&zeros))
+}
+
+pub fn find(n: usize, f: usize) {
+    find_all_with_n_zeros(n)
         .take_any(f)
-        .for_each(|(num, hash)| {
-            println!(r#"{num}, "{hash}""#);
+        .for_each(|Pair { number, hash }| {
+            println!(r#"{number}, "{hash}""#);
         });
 }
