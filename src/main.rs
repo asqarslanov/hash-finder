@@ -6,5 +6,10 @@ mod cli;
 
 fn main() {
     let args = Cli::parse();
-    hash_finder::find(args.zeros, args.results);
+
+    #[cfg(feature = "ecosystem")]
+    hash_finder::with_crates(args.zeros, args.results);
+
+    #[cfg(not(feature = "ecosystem"))]
+    hash_finder::without_crates(args.zeros, args.results);
 }
