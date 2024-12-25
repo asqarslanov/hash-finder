@@ -1,3 +1,4 @@
+use std::cmp::Ordering;
 use std::num::NonZeroUsize;
 use std::sync::{Arc, Mutex};
 use std::thread;
@@ -37,8 +38,6 @@ pub fn with_crates(zeros: usize, results: usize) {
 #[allow(clippy::missing_panics_doc)]
 #[cfg(not(feature = "ecosystem"))]
 pub fn without_crates(zeros: usize, results: usize) {
-    use std::cmp::Ordering;
-
     const ITERS_PER_THREAD: u32 = 5_000_000;
     const TOTAL_THREADS: u32 = u32::MAX / ITERS_PER_THREAD;
 
