@@ -38,7 +38,9 @@ pub fn with_crates(zeros: usize, results: usize) {
 #[allow(clippy::missing_panics_doc)]
 #[cfg(not(feature = "ecosystem"))]
 pub fn without_crates(zeros: usize, results: usize) {
+    // The idea is that each thread will check this number of hashes.
     const ITERS_PER_THREAD: u32 = 5_000_000;
+    // We need to limit the number of threads to avoid a possible overflow.
     const TOTAL_THREADS: u32 = u32::MAX / ITERS_PER_THREAD;
 
     let threads = thread::available_parallelism()
@@ -46,7 +48,10 @@ pub fn without_crates(zeros: usize, results: usize) {
 
     let pool = ThreadPool::new(threads);
 
+    // If a hash ends with n zeros, we should print it.
     let n_zeros = Arc::from([0].repeat(zeros /* N */));
+
+    // The number of hashes found so far.
     let global_found = Arc::new(Mutex::new(0));
 
     for thread_id in 0..=TOTAL_THREADS {
@@ -74,7 +79,6 @@ pub fn without_crates(zeros: usize, results: usize) {
                     *found += 1;
                     (*found).cmp(&results)
                 };
-
                 match cmp {
                     Ordering::Less => {
                         print(number, hash);
@@ -89,6 +93,7 @@ pub fn without_crates(zeros: usize, results: usize) {
                 }
             }
 
+            // This return value signifies that the thread should accept new closures.
             true
         });
 
