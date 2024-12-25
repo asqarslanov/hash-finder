@@ -29,15 +29,11 @@ pub fn with_crates(zeros: usize, results: usize) {
         });
 }
 
-fn print(number: u32, hash: [u8; 64]) {
-    let hash_formatted = hash
-        .chunks(2)
-        .map(|it| format!("{:02x}", 16 * it[0] + it[1]))
-        .collect::<Box<str>>();
-
-    println!(r#"{number}, "{hash_formatted}""#);
-}
-
+/// This implementation only leverages the standard library.
+/// The SHA-256 hashing and thread management algorithms are written manually.
+///
+/// Although it generally performs better than the other implementation that
+/// makes use of external crates, its output order tends to be more chaotic.
 #[allow(clippy::missing_panics_doc)]
 #[cfg(not(feature = "ecosystem"))]
 pub fn without_crates(zeros: usize, results: usize) {
@@ -107,4 +103,13 @@ pub fn without_crates(zeros: usize, results: usize) {
     }
 
     pool.join();
+}
+
+fn print(number: u32, hash: [u8; 64]) {
+    let hash_formatted = hash
+        .chunks(2)
+        .map(|it| format!("{:02x}", 16 * it[0] + it[1]))
+        .collect::<Box<str>>();
+
+    println!(r#"{number}, "{hash_formatted}""#);
 }
