@@ -43,27 +43,29 @@ pub fn without_crates(zeros: usize, results: usize) {
     // We need to limit the number of threads to avoid a possible overflow.
     const TOTAL_THREADS: u32 = u32::MAX / ITERS_PER_THREAD;
 
-    let threads = thread::available_parallelism()
+    let threads_in_pool = thread::available_parallelism()
         .unwrap_or(NonZeroUsize::new(4).expect("4 isn't equal to zero"));
 
-    let pool = ThreadPool::new(threads);
+    let pool = ThreadPool::new(threads_in_pool);
 
     // If a hash ends with n zeros, we should print it.
-    let n_zeros = Arc::from([0].repeat(zeros /* N */));
+    let n_zeros_global = Arc::from([0].repeat(zeros /* N */));
 
     // The number of hashes found so far.
-    let global_found = Arc::new(Mutex::new(0));
+    let found_so_far_global = Arc::new(Mutex::new(0));
 
     for thread_id in 0..=TOTAL_THREADS {
-        let n_zeros = Arc::clone(&n_zeros);
-        let found = Arc::clone(&global_found);
+        let n_zeros = Arc::clone(&n_zeros_global);
+        let found_so_far = Arc::clone(&found_so_far_global);
 
         pool.execute(move || {
             let start = ITERS_PER_THREAD * thread_id + 1;
             let end = start + ITERS_PER_THREAD;
             for number in start..end {
                 {
-                    let found = found.lock().expect("locking a mutex shouldn't panic");
+                    let found = found_so_far
+                        .lock()
+                        .expect("locking a mutex shouldn't panic");
                     if *found >= results {
                         return false;
                     }
@@ -75,7 +77,9 @@ pub fn without_crates(zeros: usize, results: usize) {
                 }
 
                 let cmp = {
-                    let mut found = found.lock().expect("locking a mutex shouldn't panic");
+                    let mut found = found_so_far
+                        .lock()
+                        .expect("locking a mutex shouldn't panic");
                     *found += 1;
                     (*found).cmp(&results)
                 };
@@ -97,11 +101,11 @@ pub fn without_crates(zeros: usize, results: usize) {
             true
         });
 
-        let found_tmp = global_found
+        let found = found_so_far_global
             .lock()
             .expect("locking a mutex shouldn't panic");
 
-        if *found_tmp >= results {
+        if *found >= results {
             break;
         }
     }
