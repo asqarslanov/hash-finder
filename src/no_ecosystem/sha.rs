@@ -1,7 +1,8 @@
 use std::fmt::Write;
 use std::num::Wrapping;
 
-/// Hashes given bytes with the SHA-256 algorithm.
+/// Hashes given bytes with the SHA-256 algorithm (inspired by
+/// [this Stack Overflow answer](https://stackoverflow.com/a/78143703/16464166)).
 ///
 /// Note: a typical SHA-256 code would have the datatype `[u8; 32]`.
 /// However, this function returns 64 elements.
@@ -13,8 +14,6 @@ use std::num::Wrapping;
 ///
 /// The reason for this is to make each element correspond
 /// to a character in the string representation of the hash.
-///
-/// Inspired by [this Stack Overflow answer](https://stackoverflow.com/a/78143703/16464166).
 #[allow(clippy::missing_panics_doc)]
 pub fn digest(bytes: &[u8]) -> [u8; 64] {
     #[allow(clippy::unreadable_literal)]
