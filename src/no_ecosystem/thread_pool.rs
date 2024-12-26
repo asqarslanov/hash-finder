@@ -12,6 +12,34 @@ type Job<T> = Box<dyn FnOnce(CollectFn<T>) + Send>;
 /// returns them through the [`Iterator`] trait. Items are collected
 /// inside closures given by the end user&mdash;the thread pool provides
 /// a function that accepts new items.
+///
+/// You are assumed to have a pool alive until the end of your program.
+/// This is because of the lack of error handling in message passing,
+/// which significantly improves performance and simplicity.
+///
+/// This could&CloseCurlyQuote;ve been solved by implementing the [`Drop`]
+/// trait for the thread pool. However, a naive implementation would:
+///
+/// 1. Significantly slow down the tests;
+/// 2. Make the program wait until all threads are finished even
+///    when all hashes are output.
+///
+/// ```ignore
+/// impl<T: Send + 'static> Drop for Collecting<T> {
+///     fn drop(&mut self) {
+///         for handle in self.join_handles.take().unwrap() {
+///             handle.join().expect("finishing a thread shouldn't fail");
+///         }
+///     }
+/// }
+/// ```
+///
+/// To resolve this, I would need to come up with tricky optimization.
+/// For example, I could check whether the pool has collected $F$ or more
+/// hashes, and if that's the case, simply break all loops.
+///
+/// In general, solving this would only overcomplicate things and not solve any
+/// problem _for this program_.
 pub struct Collecting<T: Send + 'static> {
     tx: mpsc::Sender<Job<T>>,
     items: Arc<Mutex<Vec<T>>>,
@@ -24,6 +52,7 @@ impl<T: Send + 'static> Collecting<T> {
         let rx = Arc::new(Mutex::new(rx));
 
         let items = Arc::new(Mutex::new(Vec::new()));
+
         for _ in 0..size.get() {
             let items = Arc::clone(&items);
             let rx = Arc::clone(&rx);
@@ -31,9 +60,9 @@ impl<T: Send + 'static> Collecting<T> {
             thread::spawn(move || loop {
                 let job: Job<T> = rx
                     .lock()
-                    .expect("locking a mutex shouldn't panic")
+                    .expect("locking a mutex shouldn't fail")
                     .recv()
-                    .expect("receiving from a channel shouldn't panic");
+                    .expect("receiving from a channel shouldn't fail");
 
                 let items = Arc::clone(&items);
                 let collect = Box::new(move |value| {
@@ -108,5 +137,9 @@ mod tests {
 
         pool.execute(|collect| collect(1));
         assert_eq!(pool.next(), Some(1));
+
+        // The code should panic after this test.
+        // Doesn't matter for the most part, but the `--nocapture`
+        // `cargo-test` option produces ugly output.
     }
 }
