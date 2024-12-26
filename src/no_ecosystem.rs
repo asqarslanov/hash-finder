@@ -10,6 +10,16 @@ mod thread_pool;
 ///
 /// Although it generally performs better than the other implementation that
 /// makes use of external crates, its output order tends to be more chaotic.
+///
+/// # Examples
+///
+/// ```rust
+/// hash_finder::find(3)
+///     .take(4)
+///     .for_each(|(number, hash)| {
+///         println!("{number}: {hash}");
+///     });
+/// ```
 #[allow(clippy::missing_panics_doc)]
 pub fn find(zeros: usize) -> impl Iterator<Item = (u32, String)> {
     // The idea is that each thread will check this number of hashes.

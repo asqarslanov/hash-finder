@@ -1,5 +1,18 @@
 use rayon::prelude::*;
 
+/// This implementation makes use of two external crates:
+/// [`rayon`] for parallelization and [`sha256`] for calculating SHA-256 hashes.
+///
+/// # Examples
+///
+/// ```rust
+/// use rayon::iter::ParallelIterator;
+///
+/// hash_finder::find(3)
+///     .take_any(4)
+///     .for_each(|(number, hash)| {
+///         println!("{number}: {hash}");
+///     });
 pub fn find(zeros: usize) -> impl ParallelIterator<Item = (u32, String)> {
     let n_zeros = "0".repeat(zeros);
 
