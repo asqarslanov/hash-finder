@@ -7,6 +7,11 @@ type Job<T> = Box<dyn FnOnce(CollectFn<T>) + Send>;
 
 /// A simple thread pool inspired by The Book&CloseCurlyQuote;s
 /// [Chapter 20.2](https://doc.rust-lang.org/book/ch20-02-multithreaded.html).
+///
+/// Its unique feature is that it collects items (hence the name) and then
+/// returns them through the [`Iterator`] trait. Items are collected
+/// inside closures given by the end user&mdash;the thread pool provides
+/// a function that accepts new items.
 pub struct Collecting<T: Send + 'static> {
     tx: mpsc::Sender<Job<T>>,
     items: Arc<Mutex<Vec<T>>>,
@@ -47,6 +52,9 @@ impl<T: Send + 'static> Collecting<T> {
     }
 
     /// Sends a new closure to the pool.
+    ///
+    /// The parameter of the closure contains a function that moves a given
+    /// value to the thread pool&CloseCurlyQuote;s [`Iterator`] implementation.
     ///
     /// This method doesn&CloseCurlyQuote;t block the current thread.
     pub fn execute(&self, f: impl FnOnce(CollectFn<T>) + Send + 'static) {
