@@ -42,3 +42,6 @@ cargo run --release --features ecosystem -- -N 3 -F 6
 
 This will make use of the [`rayon`](https://crates.io/crates/rayon) and
 [`sha256`](https://crates.io/crates/sha256) crates.
+
+In general, the implementation without external crates works faster but its
+output is more chaotic.
