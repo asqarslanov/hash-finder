@@ -22,3 +22,6 @@ ecosystem = ["dep:rayon", "dep:sha256"]
 all = "warn"
 nursery = "warn"
 pedantic = "warn"
+
+[dev-dependencies]
+sha256 = { version = "1.5.0", default-features = false }
