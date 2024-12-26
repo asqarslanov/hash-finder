@@ -37,7 +37,8 @@ pub fn find(zeros: usize) -> impl Iterator<Item = (u32, String)> {
                 }
 
                 let hash_formatted = hash.chunks(2).fold(String::new(), |mut output, it| {
-                    write!(output, "{:02x}", 16 * it[0] + it[1]).unwrap();
+                    write!(output, "{:02x}", 16 * it[0] + it[1])
+                        .expect("writing to a string shouldn't fail");
                     output
                 });
 
