@@ -3,20 +3,17 @@ use std::sync::{mpsc, Arc, Mutex};
 use std::thread;
 
 type Items<T> = Arc<Mutex<Vec<T>>>;
-type Job<T> = Box<dyn FnOnce(Items<T>) + Send + 'static>;
+type CollectFn<T> = Box<dyn Fn(T)>;
+type Job<T> = Box<dyn FnOnce(CollectFn<T>) + Send>;
 
 /// A simple thread pool inspired by The Book&CloseCurlyQuote;s
 /// [Chapter 20.2](https://doc.rust-lang.org/book/ch20-02-multithreaded.html).
-pub struct CollectingThreadPool<T> {
+pub struct CollectingThreadPool<T: Send + 'static> {
     tx: mpsc::Sender<Job<T>>,
     items: Items<T>,
 }
 
-impl<T> CollectingThreadPool<T>
-where
-    T: 'static,
-    Items<T>: Send,
-{
+impl<T: Send + 'static> CollectingThreadPool<T> {
     /// Creates a new thread pool that manages exactly `size` threads.
     pub fn new(size: NonZeroUsize) -> Self {
         let (tx, rx) = mpsc::channel();
@@ -35,7 +32,10 @@ where
                     .recv()
                     .expect("receiving from a channel shouldn't panic");
 
-                job(Arc::clone(&items));
+                let items = Arc::clone(&items);
+                let collect = Box::new(move |value| items.clone().lock().unwrap().push(value));
+
+                job(collect);
             });
         }
 
@@ -45,7 +45,7 @@ where
     /// Sends a new closure to the pool.
     ///
     /// This method doesn&CloseCurlyQuote;t block the current thread.
-    pub fn execute(&self, f: impl FnOnce(Items<T>) + Send + 'static) {
+    pub fn execute(&self, f: impl FnOnce(CollectFn<T>) + Send + 'static) {
         let job = Box::new(f);
 
         self.tx
@@ -54,7 +54,7 @@ where
     }
 }
 
-impl<T> Iterator for CollectingThreadPool<T> {
+impl<T: Send + 'static> Iterator for CollectingThreadPool<T> {
     type Item = T;
 
     fn next(&mut self) -> Option<Self::Item> {

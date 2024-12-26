@@ -41,19 +41,20 @@ impl NumHashIter {
         for thread_id in 0..=Self::TOTAL_THREADS {
             let n_zeros = Arc::clone(&n_zeros);
 
-            pool.execute(move |items| {
+            pool.execute(move |collect| {
                 let start = thread_id * Self::ITERS_PER_THREAD + 1;
                 let end = start + Self::ITERS_PER_THREAD;
                 for number in start..end {
                     let hash = sha::digest(number.to_string().as_bytes());
-                    if hash.ends_with(&n_zeros) {
-                        let hash_formatted =
-                            hash.chunks(2).fold(String::new(), |mut output, it| {
-                                write!(output, "{:02x}", 16 * it[0] + it[1]).unwrap();
-                                output
-                            });
-                        items.lock().unwrap().push((number, hash_formatted));
+                    if !hash.ends_with(&n_zeros) {
+                        continue;
                     }
+
+                    let hash_formatted = hash.chunks(2).fold(String::new(), |mut output, it| {
+                        write!(output, "{:02x}", 16 * it[0] + it[1]).unwrap();
+                        output
+                    });
+                    collect((number, hash_formatted));
                 }
             });
         }
