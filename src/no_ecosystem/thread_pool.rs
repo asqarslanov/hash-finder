@@ -29,14 +29,11 @@ impl<T: Send + 'static> Collecting<T> {
             let rx = Arc::clone(&rx);
 
             thread::spawn(move || loop {
-                let Ok(rx) = rx.lock() else {
-                    // The pool has gone out of scope.
-                    return;
-                };
-                let Ok(job): Result<Job<T>, _> = rx.recv() else {
-                    // The pool has gone out of scope.
-                    return;
-                };
+                let job: Job<T> = rx
+                    .lock()
+                    .expect("locking a mutex shouldn't panic")
+                    .recv()
+                    .expect("receiving from a channel shouldn't panic");
 
                 let items = Arc::clone(&items);
                 let collect = Box::new(move |value| {
