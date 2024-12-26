@@ -83,3 +83,30 @@ impl<T: Send + 'static> Iterator for Collecting<T> {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn pool_collection() {
+        let mut pool = Collecting::new(NonZeroUsize::new(4).unwrap());
+
+        pool.execute(|collect| collect(5));
+        assert_eq!(pool.next(), Some(5));
+
+        pool.execute(|collect| collect(7));
+        assert_eq!(pool.next(), Some(7));
+
+        pool.execute(|collect| collect(11));
+        pool.execute(|collect| collect(13));
+        match pool.next() {
+            Some(11) => assert_eq!(pool.next(), Some(13)),
+            Some(13) => assert_eq!(pool.next(), Some(11)),
+            _ => panic!(),
+        }
+
+        pool.execute(|collect| collect(1));
+        assert_eq!(pool.next(), Some(1));
+    }
+}
