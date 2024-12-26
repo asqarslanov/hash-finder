@@ -170,7 +170,7 @@ const fn sig_zero(a: u32) -> u32 {
 mod tests {
     use super::*;
 
-    fn test_strings() -> [&'static [u8]; 9] {
+    fn test_strings() -> impl IntoIterator<Item = &'static [u8]> {
         [
             "0",
             "-1",
