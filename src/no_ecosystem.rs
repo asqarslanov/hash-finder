@@ -42,3 +42,31 @@ pub fn find(zeros: usize) -> impl Iterator<Item = (u32, String)> {
     // I can return the pool because it implements the `Iterator` trait.
     pool
 }
+
+#[cfg(test)]
+mod tests {
+    use std::ops::RangeInclusive;
+
+    use super::*;
+
+    const TEST_NS: RangeInclusive<usize> = 1..=4;
+    const TEST_F: usize = 25;
+
+    #[test]
+    fn hashes_match() {
+        for zeros in TEST_NS {
+            for (num, hash) in find(zeros).take(TEST_F) {
+                assert_eq!(hash, sha256::digest(num.to_string()));
+            }
+        }
+    }
+
+    #[test]
+    fn zeros_match() {
+        for zeros in TEST_NS {
+            for (_, hash) in find(zeros).take(TEST_F) {
+                assert!(hash.ends_with(&"0".repeat(zeros)));
+            }
+        }
+    }
+}
