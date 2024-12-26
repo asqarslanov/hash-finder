@@ -1,7 +1,7 @@
 use clap::Parser;
 
 #[derive(Parser)]
-pub struct Cli {
+pub struct Args {
     /// Number of zeros
     #[arg(short = 'N', value_name = "NUMBER")]
     pub zeros: usize,

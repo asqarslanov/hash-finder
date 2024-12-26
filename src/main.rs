@@ -1,31 +1,37 @@
 use clap::Parser;
 
-use cli::Cli;
+use cli::Args;
 
 mod cli;
 
 fn main() {
-    let args = Cli::parse();
-
-    #[cfg(feature = "ecosystem")]
-    {
-        use rayon::iter::ParallelIterator;
-
-        hash_finder::with_crates(args.zeros /* N */)
-            .take_any(args.results /* F */)
-            .for_each(|(number, hash)| {
-                println!("{}", format(number, &hash));
-            });
-    }
+    let args = Args::parse();
 
     #[cfg(not(feature = "ecosystem"))]
-    {
-        hash_finder::without_crates(args.zeros /* N */)
-            .take(args.results /* F */)
-            .for_each(|(number, hash)| {
-                println!("{}", format(number, &hash));
-            });
-    }
+    without_crates(args.zeros, args.results);
+
+    #[cfg(feature = "ecosystem")]
+    with_crates(args.zeros, args.results);
+}
+
+#[cfg(not(feature = "ecosystem"))]
+fn without_crates(zeros: usize, results: usize) {
+    hash_finder::without_crates(zeros)
+        .take(results)
+        .for_each(|(number, hash)| {
+            println!("{}", format(number, &hash));
+        });
+}
+
+#[cfg(feature = "ecosystem")]
+fn with_crates(zeros: usize, results: usize) {
+    use rayon::iter::ParallelIterator;
+
+    hash_finder::with_crates(zeros)
+        .take_any(results)
+        .for_each(|(number, hash)| {
+            println!("{}", format(number, &hash));
+        });
 }
 
 /// Formats the given number and string such as the following.
