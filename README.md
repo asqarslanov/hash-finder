@@ -1,5 +1,8 @@
 # Hash Finder
 
+![Tests](https://github.com/asqarslanov/hash-finder/actions/workflows/tests.yaml/badge.svg)
+![Clippy](https://github.com/asqarslanov/hash-finder/actions/workflows/clippy.yaml/badge.svg)
+
 Rust Developer Intern / Task 3 / Asqar Arslanov
 
 ## About

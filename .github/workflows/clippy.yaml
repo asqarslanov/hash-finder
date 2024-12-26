@@ -1,0 +1,16 @@
+name: Clippy
+on: push
+
+env:
+  RUSTFLAGS: "-Dwarning"
+
+jobs:
+  clippy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Clippy
+        run: cargo clippy --all-targets --all-features
