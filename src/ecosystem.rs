@@ -13,6 +13,7 @@ use rayon::prelude::*;
 ///     .for_each(|(number, hash)| {
 ///         println!("{number}: {hash}");
 ///     });
+#[must_use]
 pub fn find(zeros: usize) -> impl ParallelIterator<Item = (u32, String)> {
     let n_zeros = "0".repeat(zeros);
 
@@ -36,16 +37,16 @@ mod tests {
         for zeros in TEST_NS {
             find(zeros).take_any(TEST_F).for_each(|(num, hash)| {
                 assert_eq!(hash, sha256::digest(num.to_string()));
-            })
+            });
         }
     }
 
     #[test]
     fn zeros_match() {
         for zeros in TEST_NS {
-            find(zeros)
-                .take_any(TEST_F)
-                .for_each(|(_, hash)| assert!(hash.ends_with(&"0".repeat(zeros))));
+            find(zeros).take_any(TEST_F).for_each(|(_, hash)| {
+                assert!(hash.ends_with(&"0".repeat(zeros)));
+            });
         }
     }
 }
