@@ -1,4 +1,4 @@
-use std::fmt::Write;
+use std::fmt::Write as _;
 use std::num::Wrapping;
 
 /// Hashes given bytes with the SHA-256 algorithm (inspired by

@@ -6,7 +6,7 @@ use rayon::prelude::*;
 /// # Examples
 ///
 /// ```rust
-/// use rayon::iter::ParallelIterator;
+/// use rayon::iter::ParallelIterator as _;
 ///
 /// hash_finder::find(3)
 ///     .take_any(4)
