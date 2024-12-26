@@ -9,19 +9,22 @@ path = "src/main.rs"
 
 [dependencies]
 clap = { version = "4.5.23", features = ["derive"] }
+# Not used by default.
 rayon = { version = "1.10.0", optional = true }
 sha256 = { version = "1.5.0", default-features = false, optional = true }
 
 [features]
 default = [
-  # "ecosystem"
+  # "ecosystem",
 ]
 ecosystem = ["dep:rayon", "dep:sha256"]
 
 [dev-dependencies]
+# To test `hash_finder::no_ecosystem::sha::digest`.
 sha256 = { version = "1.5.0", default-features = false }
 
 [profile.test]
+# To test `hash_finder::no_ecosystem::find`.
 inherits = "release"
 
 [lints.clippy]
