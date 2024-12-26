@@ -8,12 +8,12 @@ type Job<T> = Box<dyn FnOnce(CollectFn<T>) + Send>;
 
 /// A simple thread pool inspired by The Book&CloseCurlyQuote;s
 /// [Chapter 20.2](https://doc.rust-lang.org/book/ch20-02-multithreaded.html).
-pub struct CollectingThreadPool<T: Send + 'static> {
+pub struct Collecting<T: Send + 'static> {
     tx: mpsc::Sender<Job<T>>,
     items: Items<T>,
 }
 
-impl<T: Send + 'static> CollectingThreadPool<T> {
+impl<T: Send + 'static> Collecting<T> {
     /// Creates a new thread pool that manages exactly `size` threads.
     pub fn new(size: NonZeroUsize) -> Self {
         let (tx, rx) = mpsc::channel();
@@ -54,7 +54,7 @@ impl<T: Send + 'static> CollectingThreadPool<T> {
     }
 }
 
-impl<T: Send + 'static> Iterator for CollectingThreadPool<T> {
+impl<T: Send + 'static> Iterator for Collecting<T> {
     type Item = T;
 
     fn next(&mut self) -> Option<Self::Item> {
