@@ -39,3 +39,26 @@ fn without_crates(zeros: usize, results: usize) {
 fn format(number: u32, hash: &str) -> String {
     format!(r#"{number}, "{hash}""#)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn output_formatting() {
+        let first = format(1, "a");
+        assert_eq!(first, r#"1, "a""#);
+
+        let second = format(123, "abc123dfg456");
+        assert_eq!(second, r#"123, "abc123dfg456""#);
+
+        let third = format(
+            4163,
+            "95d4362bd3cd4315d0bbe38dfa5d7fb8f0aed5f1a31d98d510907279194e3000",
+        );
+        assert_eq!(
+            third,
+            r#"4163, "95d4362bd3cd4315d0bbe38dfa5d7fb8f0aed5f1a31d98d510907279194e3000""#,
+        );
+    }
+}
