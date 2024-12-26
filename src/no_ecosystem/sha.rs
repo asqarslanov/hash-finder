@@ -1,4 +1,12 @@
+use std::fmt::Write;
 use std::num::Wrapping;
+
+pub fn format(hash: &[u8; 64]) -> String {
+    hash.chunks(2).fold(String::new(), |mut output, it| {
+        write!(output, "{:02x}", 16 * it[0] + it[1]).expect("writing to a string shouldn't fail");
+        output
+    })
+}
 
 /// Hashes given bytes with the SHA-256 algorithm.
 ///
