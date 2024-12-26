@@ -27,10 +27,10 @@ pub fn find(zeros: usize) -> impl Iterator<Item = (u32, String)> {
         let n_zeros = Arc::clone(&n_zeros);
 
         pool.execute(move |collect| {
-            let start = thread_id * ITERS_PER_THREAD + 1;
-            let end = start + ITERS_PER_THREAD;
+            let first_number = thread_id * ITERS_PER_THREAD + 1;
+            let last_number = first_number + ITERS_PER_THREAD;
 
-            for number in start..end {
+            for number in first_number..last_number {
                 let hash = sha::digest(number.to_string().as_bytes());
                 if hash.ends_with(&n_zeros) {
                     collect((number, sha::format(&hash)));
