@@ -1,13 +1,6 @@
 use std::fmt::Write;
 use std::num::Wrapping;
 
-pub fn format(hash: &[u8; 64]) -> String {
-    hash.chunks(2).fold(String::new(), |mut output, it| {
-        write!(output, "{:02x}", 16 * it[0] + it[1]).expect("writing to a string shouldn't fail");
-        output
-    })
-}
-
 /// Hashes given bytes with the SHA-256 algorithm.
 ///
 /// Note: a typical SHA-256 code would have the datatype `[u8; 32]`.
@@ -64,6 +57,17 @@ pub fn digest(bytes: &[u8]) -> [u8; 64] {
          but we correspond each element to a pair (`it / 16`, `it % 16`)`, \
          so this should result in 64 elements",
     )
+}
+
+/// Converts a hash calculated with the [`digest`] function to its string
+/// representation (lowercase).
+pub fn format(hash: &[u8; 64]) -> String {
+    hash.chunks(2)
+        .map(|chunk| 16 * chunk[0] + chunk[1])
+        .fold(String::new(), |mut output, byte| {
+            write!(output, "{byte:02x}").expect("writing to a string shouldn't fail");
+            output
+        })
 }
 
 fn compress_round(input: &mut [u32; 8], block: &[u8]) {
