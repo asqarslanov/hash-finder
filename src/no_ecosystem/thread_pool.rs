@@ -36,7 +36,7 @@ impl<T: Send + 'static> Collecting<T> {
                         .clone()
                         .lock()
                         .expect("locking a mutex shouldn't fail")
-                        .push(value)
+                        .push(value);
                 });
 
                 job(collect);
