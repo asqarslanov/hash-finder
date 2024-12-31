@@ -99,6 +99,10 @@ impl<T: Send + 'static> Iterator for Collecting<T> {
     type Item = T;
 
     fn next(&mut self) -> Option<Self::Item> {
+        // This implementation uses busy-waiting instead of a CondVar.
+        // Empirically, this approach proved itself to be more performant.
+        // Even if it were a little bit slower, the code is simpler this way.
+
         loop {
             let item = self
                 .items
